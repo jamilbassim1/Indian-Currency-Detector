@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload Currency</title>
+</head>
+<body>
+
+<h2>Upload Indian Currency Note</h2>
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="file" name="image" required>
+    <button type="submit">Predict</button>
+</form>
+
+</body>
+</html>
