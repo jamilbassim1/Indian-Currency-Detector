@@ -1,17 +1,157 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Upload Currency</title>
+    <meta charset="UTF-8">
+    <title>Indian Currency Classification</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #3f51b5, #5c6bc0);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+        .upload-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: 0px 8px 20px rgba(0,0,0,0.25);
+            text-align: center;
+        }
+        .preview-box {
+            margin-top: 20px;
+            width: 100%;
+            height: 250px;
+            border: 2px dashed #90a4ae;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            background: #eceff1;
+        }
+        .preview-box img {
+            width: 100%;
+            height: auto;
+        }
+        .camera-box {
+            display: none;
+            margin-top: 15px;
+        }
+        video {
+            width: 100%;
+            border-radius: 10px;
+        }
+        #captureBtn {
+            margin-top: 10px;
+        }
+    </style>
 </head>
+
 <body>
 
-<h2>Upload Indian Currency Note</h2>
+<div class="upload-card">
 
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    <input type="file" name="image" required>
-    <button type="submit">Predict</button>
-</form>
+    <h2 style="color:#3f51b5;">Indian Currency Note Detection</h2>
+    <p class="text-muted">Upload from file or capture using camera</p>
+
+    <!-- Preview -->
+    <div class="preview-box" id="previewBox">
+        <span class="text-muted">Preview Appears Here</span>
+    </div>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <!-- File Upload -->
+        <label class="form-label mt-3"><b>Select Image</b></label>
+        <input type="file" name="image" accept="image/*" class="form-control"
+               onchange="previewImage(event)">
+
+        <hr>
+
+        <!-- Camera Button -->
+        <button type="button" class="btn btn-success w-100" onclick="openCamera()">📷 Open Camera</button>
+
+        <!-- Camera Box -->
+        <div class="camera-box" id="cameraBox">
+            <video id="camera" autoplay></video>
+            <button type="button" id="captureBtn" class="btn btn-warning w-100" onclick="capturePhoto()">Capture Photo</button>
+            <canvas id="canvas" style="display:none;"></canvas>
+        </div>
+
+        <!-- Hidden input for captured image -->
+        <input type="hidden" name="captured_image" id="capturedImageInput">
+
+        <button type="submit" class="btn btn-primary btn-upload mt-3 w-100">Predict</button>
+    </form>
+</div>
+
+<script>
+// Image Preview
+function previewImage(event) {
+    const preview = document.getElementById('previewBox');
+    preview.innerHTML = "";
+
+    const img = document.createElement("img");
+    img.src = URL.createObjectURL(event.target.files[0]);
+    preview.appendChild(img);
+}
+
+// CAMERA
+let stream;
+
+function openCamera() {
+    document.getElementById("cameraBox").style.display = "block";
+
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(s => {
+            stream = s;
+            document.getElementById("camera").srcObject = s;
+        })
+        .catch(err => {
+            alert("Camera access denied!");
+            console.log(err);
+        });
+}
+
+function capturePhoto() {
+    const video = document.getElementById("camera");
+    const canvas = document.getElementById("canvas");
+    const preview = document.getElementById("previewBox");
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    // Draw video frame to canvas
+    canvas.getContext('2d').drawImage(video, 0, 0);
+
+    // Stop camera
+    stream.getTracks().forEach(track => track.stop());
+
+    // Convert to image URL
+    const dataURL = canvas.toDataURL("image/jpeg");
+
+    // Show preview
+    preview.innerHTML = "";
+    const img = document.createElement("img");
+    img.src = dataURL;
+    preview.appendChild(img);
+
+    // Save to hidden input
+    document.getElementById("capturedImageInput").value = dataURL;
+
+    // Hide camera box after capture
+    document.getElementById("cameraBox").style.display = "none";
+}
+</script>
 
 </body>
 </html>
