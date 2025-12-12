@@ -8,49 +8,90 @@
 
     <style>
         body {
-            background: linear-gradient(135deg, #3f51b5, #5c6bc0);
+            background: linear-gradient(135deg, #283593, #5c6bc0);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
-            font-family: Arial, sans-serif;
+            font-family: 'Poppins', sans-serif;
         }
+
         .upload-card {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(15px);
+            padding: 35px;
+            border-radius: 20px;
             width: 100%;
-            max-width: 480px;
-            box-shadow: 0px 8px 20px rgba(0,0,0,0.25);
+            max-width: 500px;
+            box-shadow: 0px 15px 35px rgba(0, 0, 0, 0.35);
             text-align: center;
+            color: white;
+            animation: fadeIn 0.8s ease-in-out;
         }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            font-weight: 600;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
         .preview-box {
             margin-top: 20px;
             width: 100%;
-            height: 250px;
-            border: 2px dashed #90a4ae;
-            border-radius: 12px;
+            height: 260px;
+            border: 2px dashed rgba(255, 255, 255, 0.4);
+            border-radius: 15px;
             display: flex;
             justify-content: center;
             align-items: center;
             overflow: hidden;
-            background: #eceff1;
+            background: rgba(255, 255, 255, 0.2);
+            color: #f5f5f5;
         }
+
         .preview-box img {
             width: 100%;
             height: auto;
         }
+
+        .btn-custom {
+            padding: 12px;
+            font-size: 18px;
+            border-radius: 12px;
+            margin-top: 10px;
+            width: 100%;
+        }
+
         .camera-box {
             display: none;
-            margin-top: 15px;
+            margin-top: 20px;
+            animation: fadeIn 0.4s ease-in-out;
         }
+
         video {
             width: 100%;
-            border-radius: 10px;
+            border-radius: 15px;
         }
+
         #captureBtn {
-            margin-top: 10px;
+            margin-top: 15px;
+        }
+
+        .file-input {
+            background: rgba(255, 255, 255, 0.85);
+            border-radius: 10px;
+            padding: 10px;
+        }
+
+        label {
+            font-weight: 500;
+            color: #e8eaf6;
         }
     </style>
 </head>
@@ -59,43 +100,49 @@
 
 <div class="upload-card">
 
-    <h2 style="color:#3f51b5;">Indian Currency Note Detection</h2>
-    <p class="text-muted">Upload from file or capture using camera</p>
+    <h2>💵 Indian Currency Note Detection</h2>
+    <p class="text-light">Upload a photo or capture using your camera</p>
 
     <!-- Preview -->
     <div class="preview-box" id="previewBox">
-        <span class="text-muted">Preview Appears Here</span>
+        <span>Image Preview Will Appear Here</span>
     </div>
 
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
 
         <!-- File Upload -->
-        <label class="form-label mt-3"><b>Select Image</b></label>
-        <input type="file" name="image" accept="image/*" class="form-control"
+        <label class="form-label mt-3">Select Image</label>
+        <input type="file" name="image" accept="image/*"
+               class="form-control file-input"
                onchange="previewImage(event)">
 
-        <hr>
+        <hr class="text-light">
 
         <!-- Camera Button -->
-        <button type="button" class="btn btn-success w-100" onclick="openCamera()">📷 Open Camera</button>
+        <button type="button"
+                class="btn btn-warning btn-custom"
+                onclick="openCamera()">📸 Open Camera</button>
 
         <!-- Camera Box -->
         <div class="camera-box" id="cameraBox">
             <video id="camera" autoplay></video>
-            <button type="button" id="captureBtn" class="btn btn-warning w-100" onclick="capturePhoto()">Capture Photo</button>
+            <button type="button"
+                    id="captureBtn"
+                    class="btn btn-success btn-custom"
+                    onclick="capturePhoto()">✔ Capture Photo</button>
             <canvas id="canvas" style="display:none;"></canvas>
         </div>
 
         <!-- Hidden input for captured image -->
         <input type="hidden" name="captured_image" id="capturedImageInput">
 
-        <button type="submit" class="btn btn-primary btn-upload mt-3 w-100">Predict</button>
+        <button type="submit" class="btn btn-primary btn-custom mt-3">⚡ Predict</button>
     </form>
 </div>
 
 <script>
-// Image Preview
+// Preview Uploaded Image
 function previewImage(event) {
     const preview = document.getElementById('previewBox');
     preview.innerHTML = "";
@@ -103,9 +150,14 @@ function previewImage(event) {
     const img = document.createElement("img");
     img.src = URL.createObjectURL(event.target.files[0]);
     preview.appendChild(img);
+
+    // If user selects image, stop camera
+    if (window.stream) {
+        stream.getTracks().forEach(track => track.stop());
+    }
 }
 
-// CAMERA
+// Camera Functions
 let stream;
 
 function openCamera() {
@@ -118,7 +170,7 @@ function openCamera() {
         })
         .catch(err => {
             alert("Camera access denied!");
-            console.log(err);
+            console.error(err);
         });
 }
 
@@ -130,11 +182,12 @@ function capturePhoto() {
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
 
-    // Draw video frame to canvas
     canvas.getContext('2d').drawImage(video, 0, 0);
 
-    // Stop camera
-    stream.getTracks().forEach(track => track.stop());
+    // Stop camera stream
+    if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+    }
 
     // Convert to image URL
     const dataURL = canvas.toDataURL("image/jpeg");
@@ -145,10 +198,10 @@ function capturePhoto() {
     img.src = dataURL;
     preview.appendChild(img);
 
-    // Save to hidden input
+    // Save encoded image to hidden input
     document.getElementById("capturedImageInput").value = dataURL;
 
-    // Hide camera box after capture
+    // Close camera section smoothly
     document.getElementById("cameraBox").style.display = "none";
 }
 </script>

@@ -8,54 +8,73 @@
 
     <style>
         body {
-            background: linear-gradient(135deg, #1a237e, #3949ab);
+            background: linear-gradient(135deg, #283593, #5c6bc0);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
+            font-family: 'Poppins', sans-serif;
             color: #fff;
-            font-family: Arial, sans-serif;
         }
+
         .result-card {
-            background: #ffffff;
-            color: #333;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(15px);
             width: 100%;
             max-width: 600px;
-            padding: 30px;
-            border-radius: 18px;
-            box-shadow: 0px 10px 25px rgba(0,0,0,0.3);
+            padding: 35px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.35);
             text-align: center;
+            animation: fadeIn 0.8s ease-in-out;
         }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            font-weight: 600;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
         .value-box {
-            background: #e8eaf6;
-            padding: 15px;
-            border-radius: 12px;
-            margin-top: 20px;
-            font-size: 20px;
-            font-weight: bold;
+            background: rgba(232, 234, 246, 0.85);
             color: #1a237e;
+            padding: 15px;
+            border-radius: 15px;
+            font-size: 22px;
+            font-weight: bold;
+            margin-top: 20px;
         }
+
         .details {
             text-align: left;
             margin-top: 20px;
             font-size: 18px;
         }
+
         .details span {
-            font-weight: bold;
+            font-weight: 600;
             color: #1a237e;
         }
+
         .preview-img {
             margin-top: 20px;
             width: 100%;
-            border-radius: 12px;
-            box-shadow: 0px 5px 15px rgba(0,0,0,0.2);
+            border-radius: 15px;
+            box-shadow: 0px 5px 20px rgba(0,0,0,0.3);
         }
+
         .btn-back {
             margin-top: 25px;
             width: 100%;
             padding: 12px;
             font-size: 18px;
+            border-radius: 12px;
         }
     </style>
 </head>
@@ -64,8 +83,8 @@
 
 <div class="result-card">
 
-    <h2 class="text-primary">Currency Note Analysis</h2>
-    <p class="text-muted">Here are the details extracted from the image:</p>
+    <h2>💵 Currency Note Analysis</h2>
+    <p class="text-light">Here are the details extracted from the image:</p>
 
     <!-- Amount -->
     <div class="value-box">
@@ -74,7 +93,7 @@
 
     <!-- Details Section -->
     <div class="details">
-        <p><span>Authenticity:</span> Real </p>
+        <p><span>Authenticity:</span> Real</p>
         <p><span>Country:</span> India</p>
         <p><span>Currency Code:</span> INR</p>
         <p><span>Amount:</span> ₹{{ result }}</p>
